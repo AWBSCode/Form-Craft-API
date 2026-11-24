@@ -1,0 +1,36 @@
+{
+    "name": "formcraftapi",
+    "version": "1.0.0",
+    "description": "",
+    "type": "commonjs",
+    "main": "server.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "start": "nodemon server"
+    },
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cors": "^2.8.6",
+        "dotenv": "^18.0.10",
+        "express": "^5.3.0",
+        "express-rate-limit": "^8.7.5",
+        "helmet": "^8.3.0",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.12.3",
+        "morgan": "^1.12.1",
+        "slugify": "^1.6.9",
+        "uuid": "^14.0.3",
+        "validator": "^13.15.35",
+        "xss-filters": "^1.2.7"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "eslint": "^10.15.0",
+        "eslint-config-prettier": "^10.1.8",
+        "globals": "^17.14.0",
+        "nodemon": "^3.1.14",
+        "prettier": "^3.10.1"
+    }
+}
