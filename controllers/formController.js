@@ -112,6 +112,31 @@ exports.getAllFormForCreator = async (req, res) => {
     });
 };
 
-/// get the form publicly by the slug (implmentation is delayed)
+/// get the form publicly by the slug (not yet implemented)
+exports.getPublicForm = async (req, res) => {
+    const { slug } = req.params;
+    const form = await Form.findOne({
+        slug,
+        status: { $in: ['published', 'closed'] }
+    }).select('-_id');
 
-// Delete the form
+    if (!form)
+        return res.status(404).json({
+            status: 'fail',
+            message: 'not found'
+        });
+
+    if (form.status == 'closed')
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Sorry this form is closed right now. it may open later.'
+        });
+
+    res.status(200).json({
+        status: 'success',
+        data: form
+    });
+};
+
+// DELETE
+/// cascade delete the from (implemented after database completion)
