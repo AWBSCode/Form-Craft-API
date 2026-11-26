@@ -84,7 +84,6 @@ exports.protect = async (req, res, next) => {
     req.user = await User.findById(
         jwt.verify(token, process.env.JWT_SECRET).id
     );
-    req.user.id = req.user._id;
-    req.user._id = undefined;
+    req.user.id = jwt.verify(token, process.env.JWT_SECRET).id;
     next();
 };
