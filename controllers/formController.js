@@ -17,7 +17,6 @@ exports.formOwnerOnly = async (req, res, next) => {
 exports.createForm = async (req, res) => {
     const { title, description, questions, status, settings } = req.body;
     const creatorId = req.user.id;
-    console.log(req.user, creatorId);
 
     const form = await Form.create({
         title,
@@ -63,17 +62,18 @@ exports.editForm = async (req, res) => {
     const { title, settings, status } = req.body;
     const { formId } = req.params;
 
-    const updatedForm = await Form.updateOne(
+    const updatedForm = await Form.findOneAndUpdate(
         { _id: formId },
         {
             title,
             settings,
             status
-        }
+        },
+        { new: true, runValidators: true }
     );
 
     if (!updatedForm) {
-        return AppError('error in updating the form, maybe the id is wrong');
+        throw new AppError('error in updating the form, maybe the id is wrong');
     }
 
     res.status(200).json({
@@ -91,7 +91,7 @@ exports.getFormForCreator = async (req, res) => {
         .lean();
 
     if (!form) {
-        return AppError('form is not found');
+        throw new AppError('form is not found');
     }
 
     res.status(200).json({

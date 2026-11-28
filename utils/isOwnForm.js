@@ -8,7 +8,6 @@ const Form = require('../models/formModel');
  */
 module.exports = async (userId, formId) => {
     const form = await Form.findById(formId);
-    console.log(userId, form.creatorId.toString());
 
-    return form && form.creatorId == userId;
+    return Boolean(form && form.creatorId.equals(userId));
 };

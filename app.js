@@ -11,6 +11,7 @@ const AppError = require('./utils/AppError');
 
 const authRoutes = require('./routes/authRoutes');
 const formRoutes = require('./routes/formRoutes');
+const responseRoutes = require('./routes/responseRoutes');
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.get('/api/v1/health', (req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/forms', formRoutes);
+app.use('/api/v1/responses/', responseRoutes);
 
 // 404 route handler
 app.use((req, res, next) => {

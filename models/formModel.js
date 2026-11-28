@@ -79,7 +79,18 @@ const FormSchema = new mongoose.Schema(
             enum: ['draft', 'published', 'closed'],
             default: 'draft'
         },
-        responseCount: { type: Number, default: 0, min: 0 },
+        responseCount: {
+            type: Number,
+            default: 0,
+            min: 0,
+            validate: {
+                validator(val) {
+                    const max = this.settings?.maxResponses;
+                    return max == null || val <= max;
+                },
+                message: 'responseCount cannot exceed settings.maxResponses'
+            }
+        },
         settings: {
             expiresAt: Date,
             maxResponses: { type: Number, min: 1 },
@@ -108,22 +119,6 @@ const FormSchema = new mongoose.Schema(
 FormSchema.pre('validate', function () {
     if (!this.slug) {
         this.slug = generateFormSlug(this.title);
-    }
-});
-
-FormSchema.post(/^find/, function (docs) {
-    //if (!docs || this.getOptions().archived) return;
-
-    const filterQuestions = (form) => {
-        if (form && Array.isArray(form.questions)) {
-            form.questions = form.questions.filter((q) => !q.archived);
-        }
-    };
-
-    if (Array.isArray(docs)) {
-        docs.forEach(filterQuestions);
-    } else {
-        filterQuestions(docs);
     }
 });
 
@@ -183,6 +178,30 @@ FormSchema.methods.handleNewQuestions = function (incoming) {
     });
 
     this.questions = next;
+};
+
+FormSchema.statics.claimResponseSlot = async function (formId, session = null) {
+    const result = await this.updateOne(
+        {
+            _id: formId,
+            status: 'published',
+            $or: [
+                { 'settings.maxResponses': null },
+                {
+                    $expr: {
+                        $lt: [
+                            { $ifNull: ['$responseCount', 0] },
+                            '$settings.maxResponses'
+                        ]
+                    }
+                }
+            ]
+        },
+        { $inc: { responseCount: 1 } },
+        { session }
+    );
+
+    return result.modifiedCount === 1;
 };
 
 const Form = mongoose.model('Form', FormSchema);

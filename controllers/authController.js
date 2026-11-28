@@ -81,9 +81,47 @@ exports.protect = async (req, res, next) => {
         });
     }
 
-    req.user = await User.findById(
-        jwt.verify(token, process.env.JWT_SECRET).id
-    );
-    req.user.id = jwt.verify(token, process.env.JWT_SECRET).id;
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!verified)
+        return res.status(401).json({
+            status: 'fail',
+            message: 'your token has expired'
+        });
+
+    req.user = await User.findById(verified.id);
+
+    if (!req.user)
+        return res.status(404).json({
+            status: 'fail',
+            message: 'user not found'
+        });
+
+    req.user.id = verified.id;
+    next();
+};
+
+exports.identifyUser = async (req, res, next) => {
+    let token;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+        return next();
+    }
+
+    const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!verified) return next();
+
+    req.user = await User.findById(verified.id);
+
+    if (!req.user) return next();
+
+    req.user.id = verified.id;
     next();
 };
